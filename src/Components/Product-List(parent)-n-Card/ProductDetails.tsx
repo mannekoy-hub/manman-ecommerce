@@ -1,6 +1,6 @@
 export function Productdetails(){
   return(
-    <h1>this is the Product Details</h1>
+    <h1>hello Product details</h1>
   );
 
 }

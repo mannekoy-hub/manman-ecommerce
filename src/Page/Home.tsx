@@ -1,7 +1,12 @@
-
-export function Home(){
-  return(
-    <h1>this is the home page</h1>
+import { Header } from "../Components/Header";
+import { Productlist } from "../Components/Product-List(parent)-n-Card/ProductList";
+export function Home() {
+  return (
+    <>
+      <Header/>
+     <Productlist/>
+      
+    </>
   );
 
 }
