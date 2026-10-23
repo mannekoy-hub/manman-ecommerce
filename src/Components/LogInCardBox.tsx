@@ -156,7 +156,7 @@ export function Logincard() {
                     <polygon points="80,300 240,140 240,460" fill="#001845" />
                 </svg>
                 <span className="absolute left-5 top-5 rounded-full bg-white px-4 py-1.5 text-sm font-black text-[#001845]">
-                    Welcome back
+                    Welcome
                 </span>
             </div>
         </div>

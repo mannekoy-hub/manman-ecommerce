@@ -16,6 +16,7 @@ function SearchIcon({ className }: { className?: string }) {
     );
 }
 
+
 export function Searchbar() {
     return (
         <div
