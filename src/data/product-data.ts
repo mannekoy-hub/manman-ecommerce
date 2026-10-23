@@ -7,6 +7,7 @@ export interface Product {
   id: string;
   name: string;
   category: string;
+  ratings: number;
   price: number;
   description: string;
   image: string;
@@ -17,6 +18,7 @@ export const products: Product[] = [
     id: "mens-striped-shirt",
     name: "Men's Striped Button-Up Shirt",
     category: "Clothing",
+    ratings: 4.8,
     price: 899,
     description: "A light green striped long-sleeve shirt for everyday wear.",
     image: mensShirtImage,
@@ -25,6 +27,7 @@ export const products: Product[] = [
     id: "nutella-hazelnut-spread",
     name: "Nutella Hazelnut Spread",
     category: "Food",
+    ratings: 4.7,
     price: 299,
     description: "Hazelnut spread with cocoa.",
     image: nutellaImage,
@@ -33,6 +36,7 @@ export const products: Product[] = [
     id: "dior-sauvage-eau-forte",
     name: "Dior Sauvage Eau Forte",
     category: "Fragrance",
+    ratings: 4.9,
     price: 6999,
     description: "A men's fragrance in a dark blue glass bottle.",
     image: perfumeImage,
@@ -41,6 +45,7 @@ export const products: Product[] = [
     id: "orient-automatic-watch",
     name: "Orient Automatic Watch",
     category: "Accessories",
+    ratings: 4.6,
     price: 12999,
     description: "An automatic watch with a blue dial and stainless-steel bracelet.",
     image: watchImage,

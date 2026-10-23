@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoblue from "../assets/logo-blue.png";
 
 export function Header() {
     return (
@@ -11,11 +12,12 @@ export function Header() {
                     <div className="absolute top-0 -right-4 h-full w-24 -skew-x-12 bg-[#001845]" />
                 </div>
 
-                <div className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4 md:pr-48">
+                <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-3 px-6 py-2 md:pr-48">
                     {/* Brand */}
-                    <div>
-                        <h1 className="rounded-full bg-blue-600 px-5 py-2 text-lg font-black uppercase tracking-wider text-white shadow-md">
-                            Manman-Store
+                    <div className="flex items-center gap-2">
+                        <img src={logoblue} alt="" className="h-10 w-10 object-contain" />
+                        <h1 className="text-lg font-black uppercase tracking-wider text-blue-600">
+                            EZShopping
                         </h1>
                     </div>
 
