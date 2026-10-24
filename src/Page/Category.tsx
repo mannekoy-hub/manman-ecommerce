@@ -1,4 +1,4 @@
-import { Header } from "../Components/Header";
+import { Header } from "../Components/Navigation-Headers/Nav-Header";
 
 export function Category(){
   return(

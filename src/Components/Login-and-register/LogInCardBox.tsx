@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 interface FieldProps {
     id: string;
@@ -64,7 +65,7 @@ function Field({ id, label, type, placeholder, autoComplete, icon }: FieldProps)
                     type={type}
                     placeholder={placeholder}
                     autoComplete={autoComplete}
-                    className="w-full rounded-xl border border-transparent bg-sky-50 py-3 pl-12 pr-4 text-sm font-semibold text-[#001845] outline-none transition duration-200 placeholder:font-medium placeholder:text-[#001845]/40 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/30"
+                    className="w-full rounded-xl border border-transparent bg-sky-50 py-3 pl-12 pr-4 text-sm font-semibold text-[#001845] outline-none transition duration-200 placeholder:font-medium placeholder:text-[#001845]/40 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/30 shadow-[0_4px_20px_rgba(0,24,69,0.50)]"
                 />
             </div>
         </div>
@@ -73,7 +74,7 @@ function Field({ id, label, type, placeholder, autoComplete, icon }: FieldProps)
 
 export function Logincard() {
     return (
-        <div className="mx-auto mt-5 flex w-full max-w-3xl overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-[0_4px_20px_rgba(0,24,69,0.50)]">
+        <div className="mx-auto mt-5 flex w-full max-w-3xl overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-[0_4px_20px_rgba(0,24,69,0.40)]">
             <div className="flex-1 p-8 sm:p-10">
                 <h2 className="text-2xl font-black text-[#001845]">
                     Log in to your account
@@ -136,9 +137,9 @@ export function Logincard() {
 
                 <p className="mt-6 text-center text-xs font-semibold text-[#001845]">
                     Don&apos;t have an account?{" "}
-                    <a href="#" className="font-bold text-blue-600 hover:underline">
+                    <Link to="/register" className="font-bold text-blue-600 hover:underline">
                         Sign up
-                    </a>
+                    </Link>
                 </p>
             </div>
 

@@ -1,11 +1,11 @@
-
-import { Header } from "../Components/Header";
-import { Logincard } from "../Components/Authentication/LogInCardBox";
+import { Goback } from "../Components/Navigation-Headers/Login-GobackHeader";
+//import { Header } from "../Components/Nav-Header";
+import { Logincard } from "../Components/Login-and-register/LogInCardBox";
 
 export function Login(){
   return(
     <>
-    <Header></Header>
+    <Goback></Goback>
      <Logincard/>
     </>
   );  
