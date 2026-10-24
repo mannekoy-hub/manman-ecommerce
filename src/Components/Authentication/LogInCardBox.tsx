@@ -79,7 +79,7 @@ export function Logincard() {
                     Log in to your account
                 </h2>
                 <p className="mt-1 text-sm font-medium text-[#001845]/60">
-                    Welcome back! Please enter your details.
+                    Welcome! Please enter your details.
                 </p>
 
                 <form

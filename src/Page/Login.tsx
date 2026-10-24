@@ -1,6 +1,6 @@
 
 import { Header } from "../Components/Header";
-import { Logincard } from "../Components/LogInCardBox";
+import { Logincard } from "../Components/Authentication/LogInCardBox";
 
 export function Login(){
   return(
