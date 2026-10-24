@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoblue from "../assets/logo-blue.png";
+import logoblue from "../../assets/logo-blue.png";
 
 export function Goback() {
     return (

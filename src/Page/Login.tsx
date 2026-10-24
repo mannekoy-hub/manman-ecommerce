@@ -5,7 +5,7 @@ import { Logincard } from "../Components/Login-and-register/LogInCardBox";
 export function Login(){
   return(
     <>
-    <Goback></Goback>
+    <Goback/>
      <Logincard/>
     </>
   );  
