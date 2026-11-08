@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -93,6 +93,26 @@ export function Logincard() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Google's button needs a pixel width, so measure the space it has
+    // (min 200 / max 400 are Google's own limits) and follow screen resizes.
+    const googleWrapRef = useRef<HTMLDivElement>(null);
+    const [googleWidth, setGoogleWidth] = useState(0);
+
+    useLayoutEffect(() => {
+        const el = googleWrapRef.current;
+        if (!el) return;
+
+        const update = () => {
+            const w = Math.floor(el.clientWidth);
+            if (w > 0) setGoogleWidth(Math.max(200, Math.min(w, 320)));
+        };
+
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
     // Email + password login  ->  POST /auth/login
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -128,8 +148,8 @@ export function Logincard() {
     };
 
     return (
-        <div className="mx-auto mt-5 flex w-full max-w-3xl overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-[0_4px_20px_rgba(0,24,69,0.40)]">
-            <div className="flex-1 p-8 sm:p-10">
+        <div className="mx-auto mt-5 flex w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-[0_4px_20px_rgba(0,24,69,0.40)] sm:w-[calc(100%-3rem)]">
+            <div className="min-w-0 flex-1 p-6 sm:p-10">
                 <h2 className="text-2xl font-black text-[#001845]">
                     Log in to your account
                 </h2>
@@ -188,15 +208,17 @@ export function Logincard() {
                         <span className="h-px flex-1 bg-[#001845]/15" />
                     </div>
 
-                    <div className="flex justify-center">
-                        <GoogleLogin
-                            onSuccess={(res) =>
-                                res.credential && handleGoogle(res.credential)
-                            }
-                            onError={() => setError("Google sign-in failed")}
-                            text="continue_with"
-                            width="320"
-                        />
+                    <div ref={googleWrapRef} className="flex min-h-10 justify-center">
+                        {googleWidth > 0 && (
+                            <GoogleLogin
+                                onSuccess={(res) =>
+                                    res.credential && handleGoogle(res.credential)
+                                }
+                                onError={() => setError("Google sign-in failed")}
+                                text="continue_with"
+                                width={String(googleWidth)}
+                            />
+                        )}
                     </div>
                 </form>
 
