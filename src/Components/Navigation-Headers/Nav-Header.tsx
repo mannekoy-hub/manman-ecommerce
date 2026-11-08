@@ -1,7 +1,28 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import logoblue from "../../assets/logo-blue.png";
 
+// Reads the user saved at login/register (safe if missing or corrupted)
+function getStoredUser(): { username?: string; picture?: string | null } | null {
+    try {
+        const raw = localStorage.getItem("user");
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
 export function Header() {
+    // Subscribing to the location makes the Header re-render after every
+    // navigation, so it picks up the new login state after navigate("/").
+    useLocation();
+
+    const [imgFailed, setImgFailed] = useState(false);
+
+    const isLoggedIn = !!localStorage.getItem("token");
+    const user = isLoggedIn ? getStoredUser() : null;
+    const picture = user?.picture;
+
     return (
         <>
             <nav className="relative w-full overflow-hidden border-b-2 border-blue-600 bg-white">
@@ -47,6 +68,39 @@ export function Header() {
                                 Login
                             </Link>
                         </div>
+
+                        {/* Profile picture (only when logged in) */}
+                        {isLoggedIn && (
+                            <div
+                                title={user?.username || "Profile"}
+                                className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-blue-600 bg-sky-50 text-[#001845]"
+                            >
+                                {picture && !imgFailed ? (
+                                    <img
+                                        src={picture}
+                                        alt="Profile"
+                                        referrerPolicy="no-referrer"
+                                        onError={() => setImgFailed(true)}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <svg
+                                        className="h-6 w-6"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-label="Profile"
+                                        role="img"
+                                    >
+                                        <circle cx="12" cy="8" r="4" />
+                                        <path d="M4 21c0-3.9 3.6-6 8-6s8 2.1 8 6" />
+                                    </svg>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </nav>
