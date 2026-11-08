@@ -133,9 +133,9 @@ interface FieldConfig {
 const FIELDS: FieldConfig[] = [
   {
     id: "register-full-name",
-    label: "Full name",
+    label: "Username",
     type: "text",
-    placeholder: "Enter your full name",
+    placeholder: "Enter your username",
     icon: UserIcon,
   },
   {
