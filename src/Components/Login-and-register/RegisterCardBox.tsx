@@ -1,5 +1,16 @@
-
+import { useState } from "react";
 import type { ReactNode } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+
+const API = import.meta.env.VITE_API_URL;
+
+// Pulls the server's message out of an axios error
+const getError = (err: unknown) =>
+  axios.isAxiosError(err)
+    ? err.response?.data?.message || err.response?.data?.error || "Something went wrong"
+    : "Something went wrong";
 
 const styles = {
   page: "flex min-h-screen items-start justify-center bg-white px-0 pt-4 font-['Inter',system-ui,sans-serif] text-[#001a4d] sm:items-center sm:p-6",
@@ -17,11 +28,12 @@ const styles = {
   input:
     "h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-[#001a4d] outline-none placeholder:text-xs placeholder:text-slate-400 sm:text-base sm:placeholder:text-sm",
 
+  error: "text-sm font-semibold text-red-600",
+
   button:
     "flex w-full items-center justify-center rounded-xl font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a5cff] motion-reduce:transition-none",
-  buttonPrimary: "mt-1 h-12 bg-[#001a4d] text-white hover:bg-[#05296b]",
-  buttonGoogle:
-    "h-11 gap-3 border border-[#d5dbe5] bg-white text-[#001a4d] hover:bg-slate-50",
+  buttonPrimary:
+    "mt-1 h-12 bg-[#001a4d] text-white hover:bg-[#05296b] disabled:cursor-not-allowed disabled:opacity-60",
 
   divider: "my-2 flex items-center gap-4 text-sm font-semibold text-slate-500",
   dividerLine: "h-px flex-1 bg-[#d5dbe5]",
@@ -33,9 +45,7 @@ const styles = {
   pill: "absolute left-[25px] top-[25px] rounded-full bg-white px-[21px] py-2.5 font-extrabold",
 } as const;
 
-
 /*  Icons     */
-
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -78,29 +88,6 @@ const LockIcon = (
   </Icon>
 );
 
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 48 48" width="24" height="24" aria-hidden="true" focusable="false">
-      <path
-        fill="#EA4335"
-        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-      />
-      <path
-        fill="#4285F4"
-        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-      />
-      <path
-        fill="#34A853"
-        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-      />
-    </svg>
-  );
-}
-
 /** Decorative chevron artwork for the right-hand panel. */
 function PanelArt() {
   return (
@@ -118,54 +105,130 @@ function PanelArt() {
   );
 }
 
-
 /*  Fields                                                                    */
 
+type FieldName = "username" | "email" | "password" | "confirmPassword";
 
 interface FieldConfig {
   id: string;
+  name: FieldName; // key used in state and sent to the API
   label: string;
   type: "text" | "email" | "password";
   placeholder: string;
+  autoComplete: string;
   icon: ReactNode;
 }
 
 const FIELDS: FieldConfig[] = [
   {
-    id: "register-full-name",
+    id: "register-username",
+    name: "username",
     label: "Username",
     type: "text",
     placeholder: "Enter your username",
+    autoComplete: "username",
     icon: UserIcon,
   },
   {
     id: "register-email",
+    name: "email",
     label: "Email address",
     type: "email",
     placeholder: "Enter your email",
+    autoComplete: "email",
     icon: MailIcon,
   },
   {
     id: "register-password",
+    name: "password",
     label: "Password",
     type: "password",
     placeholder: "Create a password",
+    autoComplete: "new-password",
     icon: LockIcon,
   },
   {
     id: "register-confirm-password",
+    name: "confirmPassword",
     label: "Confirm password",
     type: "password",
     placeholder: "Re-enter your password",
+    autoComplete: "new-password",
     icon: LockIcon,
   },
 ];
 
-
 /*  Component                                                                 */
 
-
 export function Registercard() {
+  const navigate = useNavigate();
+
+  const [values, setValues] = useState<Record<FieldName, string>>({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (name: FieldName, value: string) =>
+    setValues((prev) => ({ ...prev, [name]: value }));
+
+  // Email + password sign up  ->  POST /auth/register
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const { username, email, password, confirmPassword } = values;
+
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
+      setError("Username must be 3-20 characters: letters, numbers, or underscores");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // handleSubmit
+      const res = await axios.post(`${API}/auth/register`, {
+        username,
+        email,
+        password,
+        confirmPassword,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));   // add this
+      navigate("/");
+    } catch (err) {
+      setError(getError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Google sign up  ->  POST /auth/google
+  const handleGoogle = async (credential: string) => {
+    setError("");
+
+    try {
+      // handleGoogle
+      const res = await axios.post(`${API}/auth/google`, { credential });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));   // add this
+      navigate("/");
+    } catch (err) {
+      setError(getError(err));
+    }
+  };
+
   return (
     <main className={styles.page}>
       <div className={styles.card}>
@@ -175,7 +238,7 @@ export function Registercard() {
             <p className={styles.subtitle}>Welcome! Please enter your details.</p>
           </header>
 
-          <form className={styles.form}>
+          <form className={styles.form} onSubmit={handleSubmit}>
             {FIELDS.map((field) => (
               <div className={styles.field} key={field.id}>
                 <label className={styles.label} htmlFor={field.id}>
@@ -188,16 +251,27 @@ export function Registercard() {
                     className={styles.input}
                     type={field.type}
                     placeholder={field.placeholder}
+                    autoComplete={field.autoComplete}
+                    value={values[field.name]}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    required
                   />
                 </div>
               </div>
             ))}
 
+            {error && (
+              <p role="alert" className={styles.error}>
+                {error}
+              </p>
+            )}
+
             <button
               className={`${styles.button} ${styles.buttonPrimary}`}
               type="submit"
+              disabled={loading}
             >
-              Sign up
+              {loading ? "Signing up..." : "Sign up"}
             </button>
           </form>
 
@@ -207,19 +281,20 @@ export function Registercard() {
             <span className={styles.dividerLine} />
           </div>
 
-          <button
-            className={`${styles.button} ${styles.buttonGoogle}`}
-            type="button"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={(res) => res.credential && handleGoogle(res.credential)}
+              onError={() => setError("Google sign-in failed")}
+              text="continue_with"
+              width="320"
+            />
+          </div>
 
           <p className={styles.footer}>
             Already have an account?{" "}
-            <a className={styles.link} href="/login">
+            <Link className={styles.link} to="/login">
               Log in
-            </a>
+            </Link>
           </p>
         </section>
 
