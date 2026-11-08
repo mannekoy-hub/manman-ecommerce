@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ const getError = (err: unknown) =>
     : "Something went wrong";
 
 const styles = {
-  page: "flex min-h-screen items-start justify-center bg-white px-0 pt-4 font-['Inter',system-ui,sans-serif] text-[#001a4d] sm:items-center sm:p-6",
+  page: "flex min-h-screen items-start justify-center bg-white px-4 pb-4 pt-4 font-['Inter',system-ui,sans-serif] text-[#001a4d] sm:items-center sm:p-6",
   card: "grid h-auto w-full max-w-[900px] grid-cols-1 overflow-hidden rounded-md bg-white shadow-[0_20px_50px_rgba(0,26,77,0.50)] sm:rounded-[28px] md:grid-cols-[minmax(0,1fr)_320px]",
   formSide: "min-w-0 px-4 py-6 sm:px-[52px] sm:py-8",
 
@@ -172,6 +172,26 @@ export function Registercard() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Google's button needs a pixel width, so measure the space it has
+  // (min 200 / max 400 are Google's own limits) and follow screen resizes.
+  const googleWrapRef = useRef<HTMLDivElement>(null);
+  const [googleWidth, setGoogleWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = googleWrapRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const w = Math.floor(el.clientWidth);
+      if (w > 0) setGoogleWidth(Math.max(200, Math.min(w, 320)));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const handleChange = (name: FieldName, value: string) =>
     setValues((prev) => ({ ...prev, [name]: value }));
 
@@ -281,13 +301,15 @@ export function Registercard() {
             <span className={styles.dividerLine} />
           </div>
 
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={(res) => res.credential && handleGoogle(res.credential)}
-              onError={() => setError("Google sign-in failed")}
-              text="continue_with"
-              width="320"
-            />
+          <div ref={googleWrapRef} className="flex min-h-10 justify-center">
+            {googleWidth > 0 && (
+              <GoogleLogin
+                onSuccess={(res) => res.credential && handleGoogle(res.credential)}
+                onError={() => setError("Google sign-in failed")}
+                text="continue_with"
+                width={String(googleWidth)}
+              />
+            )}
           </div>
 
           <p className={styles.footer}>
