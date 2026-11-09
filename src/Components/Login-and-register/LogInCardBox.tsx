@@ -124,7 +124,7 @@ export function Logincard() {
             const res = await axios.post(`${API}/auth/login`, { email, password });
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
-            navigate("/");
+            navigate("/");//send back to home page
         } catch (err) {
             setError(getError(err));
         } finally {
@@ -141,7 +141,7 @@ export function Logincard() {
             const res = await axios.post(`${API}/auth/google`, { credential });
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
-            navigate("/");
+            navigate("/");// send back to home page
         } catch (err) {
             setError(getError(err));
         }
